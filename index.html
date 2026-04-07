@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Shooting Star — Aladwaa Digital</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a14;color:#e8e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+:root{--bg:#0a0a14;--surface:#13131f;--card:#1a1a2e;--accent:#7c5cfc;--gold:#f5c842;--teal:#00e5c3;--neon:#b060ff;--text:#e8e8f0;--muted:#7a7a9a;--border:#2a2a3f}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
+.shooting-star{position:absolute;height:2px;border-radius:2px;animation:shoot var(--sd,2s) linear var(--delay,0s) infinite;opacity:0;transform-origin:left center;transform:rotate(var(--angle,35deg));transition:opacity .3s}
+.hide-shooting .shooting-star{animation:none;opacity:0!important}
+@keyframes shoot{0%{opacity:0;transform:rotate(var(--angle,35deg)) scaleX(0)}8%{opacity:1;transform:rotate(var(--angle,35deg)) scaleX(1)}85%{opacity:.4}100%{opacity:0;transform:rotate(var(--angle,35deg)) scaleX(1) translateX(var(--tx,260px))}}
+.shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(10,10,20,.92);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;backdrop-filter:blur(8px);flex-wrap:wrap;gap:8px}
+.logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700}
+.logo span{background:linear-gradient(135deg,#b060ff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav{display:flex;gap:2px;flex-wrap:wrap}
+.nav-btn{background:none;border:none;color:var(--muted);padding:7px 10px;border-radius:20px;cursor:pointer;font-size:12px;transition:all .2s}
+.nav-btn.active,.nav-btn:hover{background:rgba(124,92,252,.15);color:#b060ff}
+.page{display:none;padding:16px 18px;max-width:540px;margin:0 auto;width:100%}
+.page.active{display:block}
+.post-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:transform .15s}
+.post-card:hover{transform:translateY(-1px)}
+.post-header{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.av-purple{background:rgba(176,96,255,.25);color:#b060ff;border:1px solid rgba(176,96,255,.4)}
+.av-teal{background:rgba(0,229,195,.2);color:#00e5c3;border:1px solid rgba(0,229,195,.35)}
+.av-gold{background:rgba(245,200,66,.2);color:#f5c842;border:1px solid rgba(245,200,66,.35)}
+.post-meta{flex:1}
+.post-name{font-size:13px;font-weight:600}
+.post-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.grade-tag{font-size:10px;background:rgba(124,92,252,.2);color:#b060ff;border:1px solid rgba(124,92,252,.3);padding:2px 8px;border-radius:10px}
+.post-media{background:#10101a;display:flex;align-items:center;justify-content:center;height:170px;position:relative;cursor:pointer}
+.play-btn{width:48px;height:48px;border-radius:50%;background:rgba(124,92,252,.8);display:flex;align-items:center;justify-content:center;font-size:19px;transition:transform .2s}
+.play-btn:hover{transform:scale(1.1)}
+.media-label{position:absolute;top:10px;left:10px;font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600}
+.ml-reel{background:rgba(176,96,255,.3);color:#d0a0ff;border:1px solid rgba(176,96,255,.4)}
+.post-caption{padding:10px 14px 6px;font-size:13px;color:#c8c8e0;line-height:1.5}
+.post-actions{display:flex;gap:6px;padding:8px 14px 12px}
+.react-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:20px;padding:5px 11px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .2s}
+.react-btn:hover{background:rgba(124,92,252,.15);border-color:rgba(124,92,252,.4);color:var(--text)}
+.react-btn.reacted{background:rgba(124,92,252,.2);border-color:rgba(124,92,252,.5);color:#b060ff}
+.repost-btn{margin-left:auto;display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);border-radius:20px;padding:5px 11px;cursor:pointer;font-size:12px;color:var(--muted);transition:all .2s}
+.repost-btn:hover{border-color:var(--teal);color:var(--teal)}
+.repost-btn.reposted{border-color:var(--teal);color:var(--teal);background:rgba(0,229,195,.1)}
+.summary-box{margin:0 14px 8px;background:#10101a;border:1px solid var(--border);border-radius:12px;padding:12px}
+.summary-title{font-size:12px;font-weight:600;color:#00e5c3;margin-bottom:6px}
+.summary-text{font-size:12px;color:#a0a0c0;line-height:1.6}
+.voice-player{margin:0 14px 8px;background:#10101a;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px}
+.voice-play{width:34px;height:34px;border-radius:50%;background:rgba(245,200,66,.2);border:1px solid rgba(245,200,66,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .2s}
+.voice-play:hover{background:rgba(245,200,66,.35)}
+.voice-wave{flex:1;height:28px;display:flex;align-items:center;gap:2px}
+.wave-bar{background:rgba(245,200,66,.5);border-radius:2px;width:3px}
+.voice-dur{font-size:11px;color:var(--muted)}
+.upload-types{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.up-type{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
+.up-type:hover,.up-type.sel{border-color:var(--accent);background:rgba(124,92,252,.1)}
+.up-type.sel{border-color:#b060ff}
+.up-icon{font-size:24px;margin-bottom:6px}
+.up-label{font-size:12px;color:var(--muted);font-weight:500}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;transition:border .2s;font-family:inherit}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-select option{background:#1a1a2e}
+.form-textarea{height:80px;resize:none}
+.drop-zone{background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.drop-zone:hover{border-color:var(--accent)}
+.drop-icon{font-size:28px;margin-bottom:8px}
+.drop-text{font-size:13px;color:var(--muted)}
+.submit-btn{width:100%;background:linear-gradient(135deg,#7c5cfc,#b060ff);border:none;border-radius:12px;padding:13px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.submit-btn:hover{opacity:.9}
+.success-toast{display:none;background:rgba(0,229,195,.15);border:1px solid rgba(0,229,195,.4);border-radius:12px;padding:12px 16px;font-size:13px;color:#00e5c3;margin-bottom:14px;text-align:center}
+.badges-header{text-align:center;padding:16px 0 20px}
+.badges-header h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.badges-header p{font-size:13px;color:var(--muted)}
+.xp-bar-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:20px}
+.xp-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.xp-track{background:#1a1a2e;border-radius:10px;height:8px;overflow:hidden}
+.xp-fill{background:linear-gradient(90deg,#7c5cfc,#00e5c3);height:100%;border-radius:10px;width:62%}
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.badge-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;transition:all .2s;cursor:pointer}
+.badge-card.earned{border-color:rgba(124,92,252,.5);background:rgba(124,92,252,.08)}
+.badge-card.locked{opacity:.5;cursor:default}
+.badge-icon{font-size:32px;margin-bottom:8px}
+.badge-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.badge-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.badge-earned-tag{font-size:10px;background:rgba(0,229,195,.2);color:#00e5c3;border:1px solid rgba(0,229,195,.35);padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px}
+.badge-locked-tag{font-size:10px;background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px}
+.lb-header{text-align:center;padding:16px 0 20px}
+.lb-header h2{font-size:20px;font-weight:700}
+.lb-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.lb-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.lb-row:last-child{border-bottom:none}
+.lb-row.me{background:rgba(124,92,252,.08)}
+.lb-rank{font-size:16px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
+.lb-rank.gold{color:#f5c842}.lb-rank.silver{color:#b0b0c0}.lb-rank.bronze{color:#c87a3a}
+.lb-info{flex:1}
+.lb-name{font-size:13px;font-weight:600}
+.lb-badges-row{display:flex;gap:4px;margin-top:3px}
+.lb-badge-mini{font-size:11px}
+.lb-score{text-align:right}
+.lb-pts{font-size:14px;font-weight:700;color:#b060ff}
+.lb-pts-label{font-size:10px;color:var(--muted)}
+.profile-top{text-align:center;padding:20px 0 16px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:rgba(124,92,252,.25);border:2px solid rgba(124,92,252,.5);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b060ff;margin:0 auto 10px}
+.profile-name{font-size:18px;font-weight:700;margin-bottom:3px}
+.profile-grade{font-size:13px;color:var(--muted)}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.pstat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.pstat-num{font-size:20px;font-weight:700;color:#b060ff}
+.pstat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.profile-badges{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px}
+.section-title{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.my-badges-row{display:flex;gap:10px;flex-wrap:wrap}
+.my-badge{text-align:center}
+.my-badge-icon{font-size:28px;display:block}
+.my-badge-label{font-size:10px;color:var(--muted);margin-top:3px}
+.winners-hero{text-align:center;padding:22px 0 16px}
+.winners-title{font-size:22px;font-weight:700;background:linear-gradient(135deg,#f5c842,#b060ff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.winners-sub{font-size:13px;color:var(--muted)}
+.grade-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;justify-content:center}
+.gtab{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s}
+.gtab.active{background:rgba(124,92,252,.2);border-color:#b060ff;color:#b060ff;font-weight:600}
+.grade-section{display:none}
+.grade-section.active{display:block}
+.grade-section-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.grade-label{font-size:15px;font-weight:700}
+.grade-line{flex:1;height:1px;background:var(--border)}
+.podium-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;align-items:end}
+.podium-card{border-radius:14px;padding:14px 10px;text-align:center;border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s}
+.podium-card:hover{transform:translateY(-3px)}
+.podium-card.p1{background:linear-gradient(160deg,rgba(245,200,66,.18),rgba(245,200,66,.05));border-color:rgba(245,200,66,.45)}
+.podium-card.p2{background:rgba(176,96,255,.07);border-color:rgba(176,96,255,.3)}
+.podium-card.p3{background:rgba(200,122,58,.07);border-color:rgba(200,122,58,.3)}
+.podium-rank{font-size:22px;margin-bottom:6px;display:block}
+.podium-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin:0 auto 8px}
+.podium-av.gold{background:rgba(245,200,66,.25);color:#f5c842;border:1px solid rgba(245,200,66,.5)}
+.podium-av.silver{background:rgba(176,176,192,.2);color:#c0c0d0;border:1px solid rgba(176,176,192,.4)}
+.podium-av.bronze{background:rgba(200,122,58,.2);color:#d0904a;border:1px solid rgba(200,122,58,.4)}
+.podium-name{font-size:12px;font-weight:600;margin-bottom:3px}
+.podium-title-badge{font-size:10px;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:5px;font-weight:600}
+.tb-gold{background:rgba(245,200,66,.2);color:#f5c842;border:1px solid rgba(245,200,66,.4)}
+.tb-silver{background:rgba(176,176,192,.15);color:#b0b0c0;border:1px solid rgba(176,176,192,.3)}
+.tb-bronze{background:rgba(200,122,58,.15);color:#d0904a;border:1px solid rgba(200,122,58,.3)}
+.podium-pts{font-size:13px;font-weight:700;color:#b060ff}
+.podium-pts span{font-size:10px;color:var(--muted);font-weight:400}
+.shimmer-bar{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);animation:shimmer 3s ease-in-out infinite}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.honorable-list{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.honor-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.honor-row:last-child{border-bottom:none}
+.honor-rank{font-size:13px;font-weight:700;color:var(--muted);width:22px;text-align:center}
+.honor-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.honor-info{flex:1}
+.honor-name{font-size:12px;font-weight:600}
+.honor-subject{font-size:11px;color:var(--muted)}
+.honor-pts{font-size:12px;font-weight:700;color:#b060ff}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(245,200,66,.5)}70%{box-shadow:0 0 0 12px rgba(245,200,66,0)}100%{box-shadow:0 0 0 0 rgba(245,200,66,0)}}
+.pulse-gold{animation:pulseRing 2s ease-in-out infinite}
+@keyframes floatUp{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+.float-anim{animation:floatUp 3s ease-in-out infinite}
+.cert-hero{text-align:center;padding:18px 0 14px}
+.cert-hero h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.cert-hero p{font-size:13px;color:var(--muted)}
+.cert-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:16px;overflow:hidden;position:relative}
+.cert-inner{padding:24px 20px;text-align:center;position:relative;z-index:1}
+.cert-badge-icon{font-size:44px;margin-bottom:10px;display:block}
+.cert-title{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.cert-name{font-size:18px;font-weight:700;margin-bottom:4px;background:linear-gradient(135deg,#f5c842,#b060ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cert-badge-name{font-size:14px;font-weight:600;color:#00e5c3;margin-bottom:12px}
+.cert-quote{font-size:13px;color:#c0c0d0;line-height:1.7;font-style:italic;margin-bottom:14px;padding:0 10px}
+.cert-date{font-size:11px;color:var(--muted);margin-bottom:16px}
+.cert-divider{width:60px;height:2px;background:linear-gradient(90deg,#7c5cfc,#00e5c3);border-radius:2px;margin:0 auto 16px}
+.cert-actions{display:flex;gap:8px;justify-content:center}
+.cert-share-btn{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7c5cfc,#b060ff);border:none;border-radius:20px;padding:8px 18px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.cert-share-btn:hover{opacity:.88}
+.cert-view-btn{display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:20px;padding:8px 16px;color:var(--muted);font-size:12px;cursor:pointer;transition:all .2s}
+.cert-view-btn:hover{border-color:#b060ff;color:#b060ff}
+.cert-glow-gold{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(245,200,66,.12),transparent 70%);pointer-events:none}
+.cert-glow-purple{position:absolute;bottom:-40px;right:-20px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(176,96,255,.1),transparent 70%);pointer-events:none}
+.new-badge-toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid rgba(245,200,66,.5);border-radius:16px;padding:14px 20px;z-index:200;min-width:260px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.new-badge-toast.show{display:block;animation:slideUp .4s ease}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.share-confirm{display:none;background:rgba(0,229,195,.12);border:1px solid rgba(0,229,195,.4);border-radius:12px;padding:10px 14px;font-size:12px;color:#00e5c3;margin-top:10px;text-align:center}
+#confettiCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;display:none}
+</style>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+<div class="stars" id="starsCanvas"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen" style="position:fixed;inset:0;background:#0a0a14;z-index:999;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:360px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-size:48px;margin-bottom:12px" class="float-anim">✦</div>
+      <div style="font-size:24px;font-weight:700;background:linear-gradient(135deg,#b060ff,#00e5c3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">Shooting Star</div>
+      <div style="font-size:13px;color:var(--muted)">Aladwaa Digital · Student Platform</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:18px;text-align:center">Welcome! Let's get you in 🚀</div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input id="loginName" class="form-input" placeholder="Enter your full name" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mobile Number</label>
+        <div style="display:flex;gap:8px">
+          <select class="form-select" style="width:90px;flex-shrink:0">
+            <option>+20</option><option>+971</option><option>+966</option><option>+1</option><option>+44</option>
+          </select>
+          <input id="loginPhone" class="form-input" placeholder="10-digit number" type="tel" maxlength="11"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grade</label>
+        <select id="loginGrade" class="form-select">
+          <option value="">Select your grade</option>
+          <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option>
+          <option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
+        </select>
+      </div>
+      <div id="loginError" style="display:none;font-size:12px;color:#ff6b6b;margin-bottom:10px;text-align:center;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);border-radius:8px;padding:8px">Please fill in all fields</div>
+      <button onclick="doLogin()" style="width:100%;background:linear-gradient(135deg,#7c5cfc,#b060ff);border:none;border-radius:12px;padding:13px;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Enter Shooting Star ✦</button>
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">Your info is used only to personalize your experience</div>
+    </div>
+  </div>
+</div>
+
+<div class="new-badge-toast" id="badgeToast">
+  <div style="font-size:24px;margin-bottom:6px" id="toastIcon">🌟</div>
+  <div style="font-size:13px;font-weight:700;color:#f5c842;margin-bottom:2px">New Achievement Unlocked!</div>
+  <div style="font-size:12px;color:var(--muted)" id="toastMsg">First Star earned</div>
+  <div style="margin-top:8px"><button onclick="goPage('certs',document.getElementById('nb-certs'));hideToast()" style="background:rgba(124,92,252,.2);border:1px solid rgba(124,92,252,.4);color:#b060ff;border-radius:20px;padding:5px 14px;font-size:11px;cursor:pointer">View Certificate →</button></div>
+</div>
+
+<div class="shell">
+<div class="topbar">
+  <div class="logo"><span style="font-size:20px">✦</span><span>Shooting Star</span></div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="goPage('feed',this)">⊞ Feed</button>
+    <button class="nav-btn" onclick="goPage('upload',this)">↑ Upload</button>
+    <button class="nav-btn" onclick="goPage('badges',this)">◈ Badges</button>
+    <button class="nav-btn" onclick="goPage('lb',this)">⬡ Board</button>
+    <button class="nav-btn" onclick="goPage('winners',this)">★ Winners</button>
+    <button class="nav-btn" id="nb-certs" onclick="goPage('certs',this)">🎓 Certs</button>
+    <button class="nav-btn" onclick="goPage('profile',this)">○ Me</button>
+  </div>
+</div>
+
+<!-- FEED -->
+<div class="page active" id="page-feed">
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input id="feedSearch" class="form-input" placeholder="Search content..." style="flex:1" oninput="filterFeed()"/>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <select class="form-select" id="filterGrade" onchange="filterFeed()" style="flex:1;min-width:110px">
+      <option value="">All Grades</option>
+      <option>G4</option><option>G5</option><option>G6</option><option>G7</option><option>G8</option><option>G9</option>
+    </select>
+    <select class="form-select" id="filterSubject" onchange="filterFeed()" style="flex:1;min-width:140px">
+      <option value="">All Subjects</option>
+      <option>لغة عربية</option><option>English</option><option>دراسات</option><option>رياضيات</option><option>علوم</option><option>Science</option><option>Math</option>
+    </select>
+    <button style="background:rgba(124,92,252,.15);border:1px solid rgba(124,92,252,.4);color:#b060ff;border-radius:10px;padding:0 12px;font-size:12px;cursor:pointer;white-space:nowrap" onclick="clearFilters()">✕ Clear</button>
+  </div>
+  <div id="noResults" style="display:none;text-align:center;padding:30px;color:var(--muted);font-size:13px">No posts match your filters.</div>
+
+  <div class="post-card" data-grade="G9" data-subject="رياضيات" data-caption="شرح قاعدة المشتقات">
+    <div class="post-header"><div class="avatar av-purple">YA</div><div class="post-meta"><div class="post-name">Youssef A. <span class="grade-tag">G9</span></div><div class="post-sub">رياضيات · 3h ago</div></div></div>
+    <div class="post-media"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0a3a,#0a1a2a);opacity:.6"></div><span class="media-label ml-reel">REEL</span><div class="play-btn">▶</div></div>
+    <div class="post-caption">شرح قاعدة المشتقات — أسهل طريقة تحفظها ✨</div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>24</span></button><button class="react-btn" onclick="react(this)">⭐ <span>18</span></button><button class="react-btn" onclick="react(this)">💡 <span>11</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+
+  <div class="post-card" data-grade="G7" data-subject="لغة عربية" data-caption="ملخص درس الإعراب">
+    <div class="post-header"><div class="avatar av-teal">NM</div><div class="post-meta"><div class="post-name">Nour M. <span class="grade-tag">G7</span></div><div class="post-sub">لغة عربية · 5h ago</div></div></div>
+    <div class="summary-box"><div class="summary-title">📄 ملخص — الإعراب في الجملة الاسمية</div><div class="summary-text">المبتدأ: اسم مرفوع في أول الجملة · الخبر: اسم مرفوع يُكمل معنى المبتدأ...</div></div>
+    <div class="post-caption">ملخص درس الإعراب — ورقة للمراجعة السريعة 📝</div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>31</span></button><button class="react-btn" onclick="react(this)">⭐ <span>42</span></button><button class="react-btn" onclick="react(this)">💡 <span>19</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+
+  <div class="post-card" data-grade="G8" data-subject="علوم" data-caption="شرح صوتي لخلية الفولتا">
+    <div class="post-header"><div class="avatar av-gold">HK</div><div class="post-meta"><div class="post-name">Hana K. <span class="grade-tag">G8</span></div><div class="post-sub">علوم · 1d ago</div></div></div>
+    <div class="voice-player"><div class="voice-play" onclick="toggleVoice(this)">▶</div><div class="voice-wave"></div><div class="voice-dur">2:14</div></div>
+    <div class="post-caption">شرح صوتي لخلية الفولتا — باختصار وسهولة 🎙️</div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>15</span></button><button class="react-btn" onclick="react(this)">⭐ <span>27</span></button><button class="react-btn" onclick="react(this)">💡 <span>33</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+
+  <div class="post-card" data-grade="G6" data-subject="English" data-caption="Past tense vs Past perfect">
+    <div class="post-header"><div class="avatar av-purple">SR</div><div class="post-meta"><div class="post-name">Sara R. <span class="grade-tag">G6</span></div><div class="post-sub">English · 2d ago</div></div></div>
+    <div class="post-media"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a2a1a,#1a0a2a);opacity:.6"></div><span class="media-label ml-reel">REEL</span><div class="play-btn">▶</div></div>
+    <div class="post-caption">Past tense vs Past perfect — trick to never forget it!</div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>56</span></button><button class="react-btn" onclick="react(this)">⭐ <span>38</span></button><button class="react-btn" onclick="react(this)">💡 <span>22</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+
+  <div class="post-card" data-grade="G5" data-subject="دراسات" data-caption="ملخص الحضارة المصرية القديمة">
+    <div class="post-header"><div class="avatar av-teal">OZ</div><div class="post-meta"><div class="post-name">Omar Z. <span class="grade-tag">G5</span></div><div class="post-sub">دراسات · 3d ago</div></div></div>
+    <div class="summary-box"><div class="summary-title">📄 ملخص — الحضارة المصرية القديمة</div><div class="summary-text">قامت على ضفاف نهر النيل · اشتهرت بالأهرامات والمعابد · من أبرز فراعنتها رمسيس الثاني وتوت عنخ آمون...</div></div>
+    <div class="post-caption">ملخص الحضارة المصرية القديمة للمراجعة 🏛️</div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>44</span></button><button class="react-btn" onclick="react(this)">⭐ <span>61</span></button><button class="react-btn" onclick="react(this)">💡 <span>28</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+
+  <div id="sharedCertPost" class="post-card" data-grade="G9" data-subject="رياضيات" data-caption="شهادة إنجاز" style="display:none">
+    <div class="post-header"><div class="avatar av-purple" id="sharedAvatar">ME</div><div class="post-meta"><div class="post-name" id="sharedName">You</div><div class="post-sub">Achievement · just now</div></div></div>
+    <div style="background:#10101a;padding:20px;text-align:center;border-bottom:1px solid var(--border)">
+      <div style="font-size:40px;margin-bottom:8px" id="sharedCertIcon">🌟</div>
+      <div style="font-size:13px;font-weight:700;color:#f5c842;margin-bottom:4px" id="sharedCertTitle">Certificate Shared</div>
+      <div style="font-size:12px;color:var(--muted)" id="sharedCertQuote"></div>
+    </div>
+    <div class="post-actions"><button class="react-btn" onclick="react(this)">🔥 <span>0</span></button><button class="react-btn" onclick="react(this)">⭐ <span>0</span></button><button class="react-btn" onclick="react(this)">💡 <span>0</span></button><button class="repost-btn" onclick="repost(this)">↺ <span>Repost</span></button></div>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<div class="page" id="page-upload">
+  <div style="padding:16px 0 20px"><div style="font-size:20px;font-weight:700;margin-bottom:4px">Share your knowledge ✦</div><div style="font-size:13px;color:var(--muted)">Upload a reel, summary, or voice note</div></div>
+  <div class="success-toast" id="successToast">✓ Uploaded! +50 XP earned 🎉</div>
+  <div class="upload-types">
+    <div class="up-type sel" onclick="selType(this,'reel')"><div class="up-icon">🎬</div><div class="up-label">Reel</div></div>
+    <div class="up-type" onclick="selType(this,'summary')"><div class="up-icon">📄</div><div class="up-label">Summary</div></div>
+    <div class="up-type" onclick="selType(this,'voice')"><div class="up-icon">🎙️</div><div class="up-label">Voice Note</div></div>
+  </div>
+  <div class="form-group"><label class="form-label">Grade</label>
+    <select class="form-select">
+      <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option>
+      <option>Grade 7</option><option>Grade 8</option><option selected>Grade 9</option>
+    </select>
+  </div>
+  <div class="form-group"><label class="form-label">Subject</label>
+    <select class="form-select">
+      <option>لغة عربية</option><option>English</option><option>دراسات</option><option>رياضيات</option><option>علوم</option><option>Science</option><option>Math</option>
+    </select>
+  </div>
+  <div class="drop-zone"><div class="drop-icon" id="dropIcon">🎬</div><div class="drop-text" id="dropText">Tap to select your video file</div><div style="font-size:11px;color:var(--muted);margin-top:6px">MP4, MOV up to 100MB</div></div>
+  <div class="form-group"><label class="form-label">Caption (optional)</label><textarea class="form-textarea" placeholder="Add a caption..."></textarea></div>
+  <button class="submit-btn" onclick="submitUpload()">Upload & Earn XP ↑</button>
+</div>
+
+<!-- BADGES -->
+<div class="page" id="page-badges">
+  <div class="badges-header"><h2>Your Achievements ◈</h2><p>Click an earned badge to view its certificate</p></div>
+  <div class="xp-bar-wrap">
+    <div class="xp-label"><span>⭐ 620 XP</span><span>Next: 1000 XP</span></div>
+    <div class="xp-track"><div class="xp-fill"></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">Level 4 — Rising Star</div>
+  </div>
+  <div class="badges-grid">
+    <div class="badge-card earned" onclick="openCert(0)"><div class="badge-icon">🌟</div><div class="badge-name">First Star</div><div class="badge-desc">Uploaded your first content</div><div class="badge-earned-tag">✓ View Certificate</div></div>
+    <div class="badge-card earned" onclick="openCert(1)"><div class="badge-icon">🔥</div><div class="badge-name">On Fire</div><div class="badge-desc">Got 25+ reactions on one post</div><div class="badge-earned-tag">✓ View Certificate</div></div>
+    <div class="badge-card earned" onclick="openCert(2)"><div class="badge-icon">📚</div><div class="badge-name">Summary Master</div><div class="badge-desc">Uploaded 5 summaries</div><div class="badge-earned-tag">✓ View Certificate</div></div>
+    <div class="badge-card locked"><div class="badge-icon">🚀</div><div class="badge-name">Shooting Star</div><div class="badge-desc">Top 10 on leaderboard</div><div class="badge-locked-tag">⌛ 380 XP away</div></div>
+    <div class="badge-card locked"><div class="badge-icon">🎙️</div><div class="badge-name">Voice of Grade</div><div class="badge-desc">10 voice notes uploaded</div><div class="badge-locked-tag">⌛ 7 more to go</div></div>
+    <div class="badge-card locked"><div class="badge-icon">👑</div><div class="badge-name">Legend</div><div class="badge-desc">Reach Level 10</div><div class="badge-locked-tag">⌛ Level 4/10</div></div>
+    <div class="badge-card locked"><div class="badge-icon">⭐</div><div class="badge-name">Star Collector</div><div class="badge-desc">Receive 100 star reactions</div><div class="badge-locked-tag">⌛ 68 more</div></div>
+    <div class="badge-card locked"><div class="badge-icon">💡</div><div class="badge-name">The Explainer</div><div class="badge-desc">10 reels with 20+ reactions</div><div class="badge-locked-tag">⌛ 9 more</div></div>
+  </div>
+  <div style="text-align:center;margin-bottom:20px"><button onclick="simulateBadge()" style="background:rgba(245,200,66,.15);border:1px solid rgba(245,200,66,.4);color:#f5c842;border-radius:20px;padding:8px 20px;font-size:12px;cursor:pointer">✦ Simulate earning a badge</button></div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="page" id="page-lb">
+  <div class="lb-header"><h2>⬡ Top Stars This Week</h2><div style="font-size:13px;color:var(--muted);margin-top:4px">Ranked by XP</div></div>
+  <div class="lb-card">
+    <div class="lb-row"><div class="lb-rank gold">1</div><div class="avatar av-teal" style="width:34px;height:34px;font-size:12px">SR</div><div class="lb-info"><div class="lb-name">Sara R. <span class="grade-tag">G6</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">🔥</span><span class="lb-badge-mini">📚</span></div></div><div class="lb-score"><div class="lb-pts">1840</div><div class="lb-pts-label">XP</div></div></div>
+    <div class="lb-row"><div class="lb-rank silver">2</div><div class="avatar av-gold" style="width:34px;height:34px;font-size:12px">OZ</div><div class="lb-info"><div class="lb-name">Omar Z. <span class="grade-tag">G5</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">👑</span></div></div><div class="lb-score"><div class="lb-pts">1700</div><div class="lb-pts-label">XP</div></div></div>
+    <div class="lb-row"><div class="lb-rank bronze">3</div><div class="avatar av-purple" style="width:34px;height:34px;font-size:12px">JB</div><div class="lb-info"><div class="lb-name">Jana B. <span class="grade-tag">G4</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">🚀</span></div></div><div class="lb-score"><div class="lb-pts">1560</div><div class="lb-pts-label">XP</div></div></div>
+    <div class="lb-row"><div class="lb-rank" style="color:var(--muted)">4</div><div class="avatar av-purple" style="width:34px;height:34px;font-size:12px">YA</div><div class="lb-info"><div class="lb-name">Youssef A. <span class="grade-tag">G9</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">🔥</span></div></div><div class="lb-score"><div class="lb-pts">1490</div><div class="lb-pts-label">XP</div></div></div>
+    <div class="lb-row"><div class="lb-rank" style="color:var(--muted)">5</div><div class="avatar av-gold" style="width:34px;height:34px;font-size:12px">HK</div><div class="lb-info"><div class="lb-name">Hana K. <span class="grade-tag">G8</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">📚</span></div></div><div class="lb-score"><div class="lb-pts">1120</div><div class="lb-pts-label">XP</div></div></div>
+    <div class="lb-row me"><div class="lb-rank" style="color:#b060ff">7</div><div class="avatar av-purple" id="lbMeAvatar" style="width:34px;height:34px;font-size:12px">ME</div><div class="lb-info"><div class="lb-name" id="lbMeName">You <span class="grade-tag">G9</span></div><div class="lb-badges-row"><span class="lb-badge-mini">🌟</span><span class="lb-badge-mini">🔥</span><span class="lb-badge-mini">📚</span></div></div><div class="lb-score"><div class="lb-pts">620</div><div class="lb-pts-label">XP</div></div></div>
+  </div>
+</div>
+
+<!-- WINNERS -->
+<div class="page" id="page-winners">
+  <div class="winners-hero"><div style="font-size:36px;margin-bottom:8px" class="float-anim">🏆</div><div class="winners-title">Hall of Stars</div><div class="winners-sub">Monthly winners · April 2026</div></div>
+  <div class="grade-tabs">
+    <button class="gtab active" onclick="switchGrade('g4',this)">Grade 4</button>
+    <button class="gtab" onclick="switchGrade('g5',this)">Grade 5</button>
+    <button class="gtab" onclick="switchGrade('g6',this)">Grade 6</button>
+    <button class="gtab" onclick="switchGrade('g7',this)">Grade 7</button>
+    <button class="gtab" onclick="switchGrade('g8',this)">Grade 8</button>
+    <button class="gtab" onclick="switchGrade('g9',this)">Grade 9</button>
+  </div>
+  <div class="grade-section active" id="ws-g4">
+    <div class="grade-section-title"><div class="grade-label">Grade 4</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">35 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">AM</div><div class="podium-name">Adam M.</div><div class="podium-title-badge tb-silver">The Explainer</div><div class="podium-pts">1050 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">JB</div><div class="podium-name">Jana B.</div><div class="podium-title-badge tb-gold">Shooting Star</div><div class="podium-pts">1560 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">KN</div><div class="podium-name">Kareem N.</div><div class="podium-title-badge tb-bronze">On Fire</div><div class="podium-pts">870 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-teal">HS</div><div class="honor-info"><div class="honor-name">Hana S.</div><div class="honor-subject">لغة عربية · Summary Master</div></div><div class="honor-pts">680 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-purple">TE</div><div class="honor-info"><div class="honor-name">Tamer E.</div><div class="honor-subject">رياضيات · First Star</div></div><div class="honor-pts">530 XP</div></div></div>
+  </div>
+  <div class="grade-section" id="ws-g5">
+    <div class="grade-section-title"><div class="grade-label">Grade 5</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">39 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">LF</div><div class="podium-name">Lara F.</div><div class="podium-title-badge tb-silver">Star Collector</div><div class="podium-pts">1140 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">OZ</div><div class="podium-name">Omar Z.</div><div class="podium-title-badge tb-gold">Legend</div><div class="podium-pts">1700 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">SH</div><div class="podium-name">Sara H.</div><div class="podium-title-badge tb-bronze">Voice of Grade</div><div class="podium-pts">910 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-gold">MK</div><div class="honor-info"><div class="honor-name">Maya K.</div><div class="honor-subject">English · On Fire</div></div><div class="honor-pts">720 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-teal">IS</div><div class="honor-info"><div class="honor-name">Ibrahim S.</div><div class="honor-subject">علوم · Rising Star</div></div><div class="honor-pts">600 XP</div></div></div>
+  </div>
+  <div class="grade-section" id="ws-g6">
+    <div class="grade-section-title"><div class="grade-label">Grade 6</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">42 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">KM</div><div class="podium-name">Karim M.</div><div class="podium-title-badge tb-silver">The Explainer</div><div class="podium-pts">1210 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">SR</div><div class="podium-name">Sara R.</div><div class="podium-title-badge tb-gold">Shooting Star</div><div class="podium-pts">1840 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">LA</div><div class="podium-name">Layla A.</div><div class="podium-title-badge tb-bronze">Summary Master</div><div class="podium-pts">980 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-teal">OM</div><div class="honor-info"><div class="honor-name">Omar M.</div><div class="honor-subject">English · Voice of Grade</div></div><div class="honor-pts">760 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-purple">DH</div><div class="honor-info"><div class="honor-name">Dina H.</div><div class="honor-subject">علوم · On Fire</div></div><div class="honor-pts">640 XP</div></div></div>
+  </div>
+  <div class="grade-section" id="ws-g7">
+    <div class="grade-section-title"><div class="grade-label">Grade 7</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">38 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">AH</div><div class="podium-name">Ahmed H.</div><div class="podium-title-badge tb-silver">On Fire</div><div class="podium-pts">1050 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">NM</div><div class="podium-name">Nour M.</div><div class="podium-title-badge tb-gold">Star Scholar</div><div class="podium-pts">1320 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">MY</div><div class="podium-name">Mai Y.</div><div class="podium-title-badge tb-bronze">Voice of Grade</div><div class="podium-pts">870 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-teal">ZK</div><div class="honor-info"><div class="honor-name">Ziad K.</div><div class="honor-subject">رياضيات · Rising Star</div></div><div class="honor-pts">700 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-purple">SB</div><div class="honor-info"><div class="honor-name">Salma B.</div><div class="honor-subject">لغة عربية · Summary Master</div></div><div class="honor-pts">590 XP</div></div></div>
+  </div>
+  <div class="grade-section" id="ws-g8">
+    <div class="grade-section-title"><div class="grade-label">Grade 8</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">45 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">MR</div><div class="podium-name">Mariam R.</div><div class="podium-title-badge tb-silver">The Explainer</div><div class="podium-pts">1080 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">HK</div><div class="podium-name">Hana K.</div><div class="podium-title-badge tb-gold">Star Scholar</div><div class="podium-pts">1490 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">TF</div><div class="podium-name">Tarek F.</div><div class="podium-title-badge tb-bronze">On Fire</div><div class="podium-pts">920 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-teal">NA</div><div class="honor-info"><div class="honor-name">Nada A.</div><div class="honor-subject">علوم · Summary Master</div></div><div class="honor-pts">730 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-gold">YS</div><div class="honor-info"><div class="honor-name">Yara S.</div><div class="honor-subject">English · First Star</div></div><div class="honor-pts">580 XP</div></div></div>
+  </div>
+  <div class="grade-section" id="ws-g9">
+    <div class="grade-section-title"><div class="grade-label">Grade 9</div><div class="grade-line"></div><div style="font-size:12px;color:var(--muted);white-space:nowrap">51 students</div></div>
+    <div class="podium-row"><div class="podium-card p2"><div class="shimmer-bar"></div><span class="podium-rank">🥈</span><div class="podium-av silver">FA</div><div class="podium-name">Farida A.</div><div class="podium-title-badge tb-silver">On Fire</div><div class="podium-pts">1190 <span>XP</span></div></div><div class="podium-card p1 pulse-gold"><div class="shimmer-bar"></div><span class="podium-rank">🥇</span><div class="podium-av gold">YA</div><div class="podium-name">Youssef A.</div><div class="podium-title-badge tb-gold">Legend</div><div class="podium-pts">1840 <span>XP</span></div></div><div class="podium-card p3"><div class="shimmer-bar"></div><span class="podium-rank">🥉</span><div class="podium-av bronze">RG</div><div class="podium-name">Rania G.</div><div class="podium-title-badge tb-bronze">Star Collector</div><div class="podium-pts">950 <span>XP</span></div></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Honorable Mentions</div>
+    <div class="honorable-list"><div class="honor-row"><div class="honor-rank">4</div><div class="honor-av av-teal">BM</div><div class="honor-info"><div class="honor-name">Bassem M.</div><div class="honor-subject">رياضيات · Rising Star</div></div><div class="honor-pts">810 XP</div></div><div class="honor-row"><div class="honor-rank">5</div><div class="honor-av av-purple">LN</div><div class="honor-info"><div class="honor-name">Lina N.</div><div class="honor-subject">لغة عربية · Summary Master</div></div><div class="honor-pts">670 XP</div></div></div>
+  </div>
+</div>
+
+<!-- CERTIFICATES -->
+<div class="page" id="page-certs">
+  <div class="cert-hero"><h2>🎓 Your Certificates</h2><p>Earned automatically with every achievement</p></div>
+  <div id="certsContainer"></div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="profile-top">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div class="profile-name" id="profileName">—</div>
+    <div class="profile-grade" id="profileGrade">— · Aladwaa Digital</div>
+    <div style="margin-top:10px"><span style="font-size:11px;background:rgba(124,92,252,.2);color:#b060ff;border:1px solid rgba(124,92,252,.35);padding:3px 10px;border-radius:10px">Level 4 — Rising Star</span></div>
+  </div>
+  <div class="profile-stats">
+    <div class="pstat"><div class="pstat-num">12</div><div class="pstat-label">Uploads</div></div>
+    <div class="pstat"><div class="pstat-num">620</div><div class="pstat-label">XP</div></div>
+    <div class="pstat"><div class="pstat-num" id="badgeCountStat">3</div><div class="pstat-label">Badges</div></div>
+  </div>
+  <div class="profile-badges">
+    <div class="section-title">Earned badges</div>
+    <div class="my-badges-row">
+      <div class="my-badge"><span class="my-badge-icon">🌟</span><div class="my-badge-label">First Star</div></div>
+      <div class="my-badge"><span class="my-badge-icon">🔥</span><div class="my-badge-label">On Fire</div></div>
+      <div class="my-badge"><span class="my-badge-icon">📚</span><div class="my-badge-label">Summary Master</div></div>
+    </div>
+  </div>
+  <div class="lb-card">
+    <div class="section-title" style="padding:12px 14px 4px">My uploads</div>
+    <div class="lb-row"><div style="font-size:20px">🎬</div><div class="lb-info"><div class="lb-name">Math derivatives reel</div><div style="font-size:11px;color:var(--muted)">رياضيات · 3h ago</div></div><div class="lb-score"><div class="lb-pts" style="font-size:13px">53 ⭐</div></div></div>
+    <div class="lb-row"><div style="font-size:20px">📄</div><div class="lb-info"><div class="lb-name">Arabic grammar summary</div><div style="font-size:11px;color:var(--muted)">لغة عربية · 1d ago</div></div><div class="lb-score"><div class="lb-pts" style="font-size:13px">92 ⭐</div></div></div>
+    <div class="lb-row"><div style="font-size:20px">🎙️</div><div class="lb-info"><div class="lb-name">Science voice note</div><div style="font-size:11px;color:var(--muted)">علوم · 2d ago</div></div><div class="lb-score"><div class="lb-pts" style="font-size:13px">75 ⭐</div></div></div>
+  </div>
+</div>
+</div>
+
+<script>
+let currentUser={name:'Student',grade:'Grade 9',phone:''};
+let earnedBadges=[
+  {icon:'🌟',name:'First Star',quote:'Every journey begins with a single step — and you took yours. The stars are watching, and they\'re proud of you. Keep shining!',sub:'You uploaded your very first piece of content and showed the world what you\'re made of.',date:'March 1, 2026'},
+  {icon:'🔥',name:'On Fire',quote:'Your energy is contagious. When you share your knowledge, you light up the learning of everyone around you. Don\'t ever stop burning bright!',sub:'Your post earned 25+ reactions — your classmates love what you create.',date:'March 14, 2026'},
+  {icon:'📚',name:'Summary Master',quote:'True scholars don\'t just learn — they help others learn. Thank you for your dedication and for making studying easier for everyone. You are an inspiration!',sub:'You uploaded 5 complete summaries that helped your fellow students.',date:'April 2, 2026'}
+];
+const simulateBadges=[
+  {icon:'🚀',name:'Shooting Star',quote:'You\'ve risen to the top and shown everyone what determination looks like. The sky is not the limit — it\'s just the beginning. Fly higher!',sub:'You made it to the Top 10 on the leaderboard. Outstanding!',date:'April 3, 2026'},
+  {icon:'👑',name:'Legend',quote:'Legends are not born — they are built through sweat, curiosity, and a passion for learning. You are living proof of that. We are honored to call you a Legend!',sub:'You reached Level 10. An achievement few ever accomplish.',date:'April 3, 2026'}
+];
+let simIdx=0;
+
+function doLogin(){
+  const name=document.getElementById('loginName').value.trim();
+  const phone=document.getElementById('loginPhone').value.trim();
+  const grade=document.getElementById('loginGrade').value;
+  const err=document.getElementById('loginError');
+  if(!name||!phone||!grade||phone.length<7){err.style.display='block';return}
+  err.style.display='none';
+  currentUser={name,grade,phone};
+  document.getElementById('loginScreen').style.display='none';
+  applyUser();
+  launchConfetti();
+}
+
+function applyUser(){
+  const initials=currentUser.name.trim().split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'ST';
+  const gradeShort=currentUser.grade.replace('Grade ','G');
+  document.getElementById('profileAvatar').textContent=initials;
+  document.getElementById('profileName').textContent=currentUser.name;
+  document.getElementById('profileGrade').textContent=currentUser.grade+' · Aladwaa Digital';
+  document.getElementById('lbMeAvatar').textContent=initials;
+  document.getElementById('lbMeName').innerHTML=currentUser.name+' <span class="grade-tag">'+gradeShort+'</span>';
+  const sa=document.getElementById('sharedAvatar');
+  const sn=document.getElementById('sharedName');
+  if(sa)sa.textContent=initials;
+  if(sn)sn.textContent=currentUser.name;
+  buildCerts();
+}
+
+function buildCerts(){
+  const c=document.getElementById('certsContainer');
+  if(!c)return;
+  c.innerHTML='';
+  earnedBadges.forEach((b,i)=>{
+    c.innerHTML+=`<div class="cert-card">
+      <div class="cert-glow-gold"></div><div class="cert-glow-purple"></div>
+      <div class="cert-inner">
+        <span class="cert-badge-icon">${b.icon}</span>
+        <div class="cert-title">Certificate of Achievement</div>
+        <div class="cert-name">${currentUser.name}</div>
+        <div class="cert-badge-name">${b.name}</div>
+        <div class="cert-divider"></div>
+        <div class="cert-quote">"${b.quote}"</div>
+        <div style="font-size:12px;color:#a0a0c0;margin-bottom:10px;line-height:1.5">${b.sub}</div>
+        <div class="cert-date">Aladwaa Digital · ${b.date}</div>
+        <div class="cert-actions">
+          <button class="cert-share-btn" onclick="shareCert(${i})">↑ Share to Feed</button>
+          <button class="cert-view-btn">✦ Save</button>
+        </div>
+        <div class="share-confirm" id="shareConfirm${i}">✓ Certificate shared to your feed!</div>
+      </div>
+    </div>`
+  });
+}
+
+function openCert(i){
+  goPage('certs',document.getElementById('nb-certs'));
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('#certsContainer .cert-card');
+    if(cards[i])cards[i].scrollIntoView({behavior:'smooth',block:'center'})
+  },120)
+}
+
+function shareCert(i){
+  const b=earnedBadges[i];
+  document.getElementById('sharedCertIcon').textContent=b.icon;
+  document.getElementById('sharedCertTitle').textContent=b.name+' — Certificate';
+  document.getElementById('sharedCertQuote').textContent='"'+b.quote.slice(0,80)+'..."';
+  document.getElementById('sharedCertPost').style.display='block';
+  const conf=document.getElementById('shareConfirm'+i);
+  if(conf)conf.style.display='block';
+}
+
+function simulateBadge(){
+  if(simIdx>=simulateBadges.length)return;
+  const b=simulateBadges[simIdx++];
+  earnedBadges.push(b);
+  buildCerts();
+  document.getElementById('toastIcon').textContent=b.icon;
+  document.getElementById('toastMsg').textContent=b.name+' earned!';
+  const toast=document.getElementById('badgeToast');
+  toast.classList.add('show');
+  launchConfetti();
+  setTimeout(()=>toast.classList.remove('show'),5000);
+}
+
+function hideToast(){document.getElementById('badgeToast').classList.remove('show')}
+
+const waveH=[6,10,14,18,14,10,8,12,16,20,14,8,10,16,20,14,10,8,12,18,14,10,8,14,18,12,8,10,16,20];
+document.querySelectorAll('.voice-wave').forEach(w=>{
+  waveH.forEach(h=>{const b=document.createElement('div');b.className='wave-bar';b.style.height=h+'px';w.appendChild(b)})
+});
+
+const starsEl=document.getElementById('starsCanvas');
+for(let i=0;i<80;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*2+.5;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;opacity:${Math.random()*.4+.1}`;
+  starsEl.appendChild(s);
+}
+const ssColors=[['rgba(176,96,255,0)','#b060ff'],['rgba(0,229,195,0)','#00e5c3'],['rgba(245,200,66,0)','#f5c842'],['rgba(255,255,255,0)','rgba(255,255,255,.9)'],['rgba(124,92,252,0)','#7c5cfc'],['rgba(255,107,157,0)','#ff6b9d']];
+for(let i=0;i<14;i++){
+  const ss=document.createElement('div');ss.className='shooting-star';
+  const len=100+Math.random()*180;
+  const angle=25+Math.random()*30;
+  const [c0,c1]=ssColors[Math.floor(Math.random()*ssColors.length)];
+  ss.style.cssText=`width:${len}px;top:${Math.random()*75}%;left:${-5+Math.random()*80}%;--angle:${angle}deg;--tx:${200+Math.random()*200}px;--sd:${1.8+Math.random()*2.5}s;--delay:${Math.random()*10}s;background:linear-gradient(90deg,${c0},${c1})`;
+  starsEl.appendChild(ss);
+}
+
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='winners'){launchConfetti();starsEl.classList.add('hide-shooting')}
+  else if(id==='badges'){starsEl.classList.add('hide-shooting')}
+  else{starsEl.classList.remove('hide-shooting')}
+  if(id==='certs')buildCerts();
+}
+
+function react(btn){
+  const n=btn.querySelector('span');
+  if(btn.classList.contains('reacted')){n.textContent=parseInt(n.textContent)-1;btn.classList.remove('reacted')}
+  else{n.textContent=parseInt(n.textContent)+1;btn.classList.add('reacted')}
+}
+function repost(btn){
+  btn.classList.toggle('reposted');
+  btn.querySelector('span').textContent=btn.classList.contains('reposted')?'Reposted':'Repost';
+}
+function toggleVoice(btn){
+  btn.textContent=btn.textContent==='▶'?'⏸':'▶';
+  const wave=btn.nextElementSibling;
+  if(btn.textContent==='⏸'){
+    let i=0;btn._iv=setInterval(()=>{wave.querySelectorAll('.wave-bar').forEach((b,j)=>{b.style.background=j<=(i%30)?'rgba(245,200,66,.9)':'rgba(245,200,66,.3)'});i++},100);
+  }else{clearInterval(btn._iv)}
+}
+const upTypes={reel:{icon:'🎬',text:'Tap to select your video file'},summary:{icon:'📄',text:'Tap to select PDF or image'},voice:{icon:'🎙️',text:'Tap to select your audio file'}};
+function selType(el,type){
+  document.querySelectorAll('.up-type').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');
+  document.getElementById('dropIcon').textContent=upTypes[type].icon;
+  document.getElementById('dropText').textContent=upTypes[type].text;
+}
+function submitUpload(){const t=document.getElementById('successToast');t.style.display='block';setTimeout(()=>{t.style.display='none'},3000)}
+function filterFeed(){
+  const q=(document.getElementById('feedSearch').value||'').toLowerCase();
+  const g=document.getElementById('filterGrade').value;
+  const s=document.getElementById('filterSubject').value;
+  let visible=0;
+  document.querySelectorAll('#page-feed .post-card').forEach(c=>{
+    const mG=!g||c.dataset.grade===g;
+    const mS=!s||c.dataset.subject===s;
+    const mQ=!q||(c.dataset.caption||'').toLowerCase().includes(q)||(c.dataset.subject||'').toLowerCase().includes(q)||(c.dataset.grade||'').toLowerCase().includes(q);
+    const show=mG&&mS&&mQ;
+    c.style.display=show?'':'none';if(show)visible++;
+  });
+  document.getElementById('noResults').style.display=visible?'none':'block';
+}
+function clearFilters(){
+  document.getElementById('feedSearch').value='';
+  document.getElementById('filterGrade').value='';
+  document.getElementById('filterSubject').value='';
+  filterFeed();
+}
+function switchGrade(id,btn){
+  document.querySelectorAll('.grade-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ws-'+id).classList.add('active');btn.classList.add('active');
+  launchConfetti();
+}
+
+const canvas=document.getElementById('confettiCanvas');
+const ctx=canvas.getContext('2d');
+let pieces=[];let raf=null;
+const cfColors=['#f5c842','#b060ff','#00e5c3','#ff6b9d','#7c5cfc','#ffffff'];
+function launchConfetti(){
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  canvas.style.display='block';pieces=[];
+  for(let i=0;i<90;i++){pieces.push({x:Math.random()*canvas.width,y:-10-Math.random()*200,w:6+Math.random()*8,h:10+Math.random()*10,r:Math.random()*Math.PI*2,dr:(.02+Math.random()*.06)*(Math.random()<.5?1:-1),dy:2+Math.random()*3,dx:(Math.random()-.5)*1.5,color:cfColors[Math.floor(Math.random()*cfColors.length)],alpha:1})}
+  if(raf)cancelAnimationFrame(raf);drawConfetti();
+}
+function drawConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  let alive=false;
+  pieces.forEach(p=>{
+    p.y+=p.dy;p.x+=p.dx;p.r+=p.dr;
+    if(p.y>canvas.height*.6)p.alpha=Math.max(0,p.alpha-.02);
+    if(p.alpha>0)alive=true;
+    ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+  });
+  if(alive){raf=requestAnimationFrame(drawConfetti)}else{canvas.style.display='none';ctx.clearRect(0,0,canvas.width,canvas.height)}
+}
+
+buildCerts();
+</script>
+</body>
+</html>
